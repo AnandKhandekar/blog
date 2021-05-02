@@ -4,7 +4,7 @@ title: About Me
 permalink: /about/
 ---
 
-Anand Khandekar is the Founder Director of TRP. A passionate Duathlete and clssifies  himself as a MULTIPOTENTIALITE
+<h1>Anand Khandekar<\h1><br><h2>Founder,Director of theRunningProfessor<\h2> <br> A passionate Duathlete and clssifies  himself as a MULTIPOTENTIALITE
 
 
 
