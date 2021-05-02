@@ -4,8 +4,9 @@ title: About Me
 permalink: /about/
 ---
 
-This website is powered by **[fastpages](https://github.com/fastai/fastpages)** [^1].
+Anand Khandekar is the Founder Director of TRP. A passionate Duathlete and clssifies  himself as a MULTIPOTENTIALITE
 
 
 
-[^1]:a blogging platform that natively supports Jupyter notebooks in addition to other formats.
+
+
