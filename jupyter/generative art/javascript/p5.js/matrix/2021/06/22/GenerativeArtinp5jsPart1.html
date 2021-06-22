@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Displaying a stream of UTF-8 symbols - Part 1( static ) | TRP_Blog</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Displaying a stream of UTF-8 symbols - Part 1( static )" />
+<meta name="author" content="Anand Khandekar" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This is part#1 of a two series post that I am writing in order to explain the usage of p5.js on the web browser to implement animations. The librabry needs no installation and one can get on with actual trials immediately." />
+<meta property="og:description" content="This is part#1 of a two series post that I am writing in order to explain the usage of p5.js on the web browser to implement animations. The librabry needs no installation and one can get on with actual trials immediately." />
+<link rel="canonical" href="https://anandkhandekar.github.io/blog/jupyter/generative%20art/javascript/p5.js/matrix/2021/06/22/GenerativeArtinp5jsPart1.html" />
+<meta property="og:url" content="https://anandkhandekar.github.io/blog/jupyter/generative%20art/javascript/p5.js/matrix/2021/06/22/GenerativeArtinp5jsPart1.html" />
+<meta property="og:site_name" content="TRP_Blog" />
+<meta property="og:image" content="https://anandkhandekar.github.io/blog/images/p5js1.JPG" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-06-22T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"This is part#1 of a two series post that I am writing in order to explain the usage of p5.js on the web browser to implement animations. The librabry needs no installation and one can get on with actual trials immediately.","url":"https://anandkhandekar.github.io/blog/jupyter/generative%20art/javascript/p5.js/matrix/2021/06/22/GenerativeArtinp5jsPart1.html","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://anandkhandekar.github.io/blog/jupyter/generative%20art/javascript/p5.js/matrix/2021/06/22/GenerativeArtinp5jsPart1.html"},"headline":"Displaying a stream of UTF-8 symbols - Part 1( static )","dateModified":"2021-06-22T00:00:00-05:00","datePublished":"2021-06-22T00:00:00-05:00","author":{"@type":"Person","name":"Anand Khandekar"},"image":"https://anandkhandekar.github.io/blog/images/p5js1.JPG","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://anandkhandekar.github.io/blog/feed.xml" title="TRP_Blog" /><link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">TRP_Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Displaying a stream of UTF-8 symbols - Part 1( static )</h1><p class="page-description">This is part#1 of a two series post that I am writing in order to explain the usage of <a href='https://p5js.org/'>p5.js</a> on the web browser to implement animations. The librabry needs no installation and one can get on with actual trials immediately.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-06-22T00:00:00-05:00" itemprop="datePublished">
+        Jun 22, 2021
+      </time>• 
+          <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+            <span class="p-author h-card" itemprop="name">Anand Khandekar</span></span>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#jupyter">jupyter</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#generative art">generative art</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#javascript">javascript</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#p5.js">p5.js</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#matrix">matrix</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/AnandKhandekar/blog/tree/master/_notebooks/2021-06-22-GenerativeArtinp5jsPart1.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/AnandKhandekar/blog/master?filepath=_notebooks%2F2021-06-22-GenerativeArtinp5jsPart1.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/blog/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/AnandKhandekar/blog/blob/master/_notebooks/2021-06-22-GenerativeArtinp5jsPart1.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h1"><a href="#What-is-the-p5.js-library-?">What is the p5.js library ? </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Your-first-SKETCH">Your first SKETCH </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Getting-started">Getting started </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Problem-Statement">Problem Statement </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Green-Rain---full-CODE">Green Rain - full CODE </a></li>
+<li class="toc-entry toc-h1"><a href="#The-LOGIC-behind-the-CODE">The LOGIC behind the CODE </a>
+<ul>
+<li class="toc-entry toc-h4"><a href="#SETUP(-)">SETUP( ) </a></li>
+<li class="toc-entry toc-h4"><a href="#DRAW-(-)">DRAW ( ) </a></li>
+<li class="toc-entry toc-h4"><a href="#OBJECT-ORIENTED-CLASS-defintion">OBJECT ORIENTED CLASS defintion </a></li>
+<li class="toc-entry toc-h4"><a href="#RENDER-Method">RENDER Method </a></li>
+<li class="toc-entry toc-h4"><a href="#lastly-the-RAIN-method">lastly the RAIN method </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-06-22-GenerativeArtinp5jsPart1.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="What-is-the-p5.js-library-?">
+<a class="anchor" href="#What-is-the-p5.js-library-?" aria-hidden="true"><span class="octicon octicon-link"></span></a>What is the p5.js library ?<a class="anchor-link" href="#What-is-the-p5.js-library-?"> </a>
+</h1>
+<blockquote>
+<p>p5.js is a JavaScript library for creative coding, with a focus on making coding accessible and inclusive for artists, designers, educators, beginners, and anyone else! p5.js is free and open-source because we believe software, and the tools to learn it, should be accessible to everyone.</p>
+</blockquote>
+<h2 id="Your-first-SKETCH">
+<a class="anchor" href="#Your-first-SKETCH" aria-hidden="true"><span class="octicon octicon-link"></span></a>Your first SKETCH<a class="anchor-link" href="#Your-first-SKETCH"> </a>
+</h2>
+<p>In the <a href="https://editor.p5js.org/">p5.js web editor</a> you will find this pre filled Template</p>
+
+<pre><code>function setup() {
+    createCanvas ( 400 , 400 );
+}
+
+function draw (  ) { 
+    background(220);
+}</code></pre>
+<p>The setup is a function which gets invoked ONCE at the start and the second function 
+draw ( ) gets called reatedly ( in a loop ) at 60 frames per second.</p>
+<p>For more details on the p5.js you may refer to <a href="https://p5js.org/get-started/">getting started</a> in their documentation.  Refer <a href="https://p5js.org/learn/">this</a> for detialed tutorials</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Getting-started">
+<a class="anchor" href="#Getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started<a class="anchor-link" href="#Getting-started"> </a>
+</h1>
+<h2 id="Problem-Statement">
+<a class="anchor" href="#Problem-Statement" aria-hidden="true"><span class="octicon octicon-link"></span></a>Problem Statement<a class="anchor-link" href="#Problem-Statement"> </a>
+</h2>
+<ul>
+<li>Stage- I : Create a sketch which displays the KATAKANI symbol in the centre of the screen. The symbol ( letter) starts from the top and falls down at variable speed.</li>
+<li>Stage- II :  Add randomness to the code such that as the symbol falls feom the top, y= 0 to the bottom y = height ( Frame height) it should also change to other symbols randomly. Note that there are a total of 96 symbols in the KATAKANI UTF-8 set.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Green-Rain---full-CODE">
+<a class="anchor" href="#Green-Rain---full-CODE" aria-hidden="true"><span class="octicon octicon-link"></span></a>Green Rain - full CODE<a class="anchor-link" href="#Green-Rain---full-CODE"> </a>
+</h1>
+<pre><code>1 var symbol;
+2
+3 function setup() {
+4  createCanvas(window.innerWidth, window.innerHeight);
+5  background(0);
+6  symbol = new Symbole(width/2,0,random(5,10));
+7  symbol.setToRandomSymbol();   
+8 }
+9
+10  function draw() {
+11    background(0)  ;
+12    fill(255);
+13    textSize(46);
+14   text("All the fun is happening here.", 200, 100);
+15   symbol.render() ;
+16   }
+17
+18  class  Symbole { 
+19        constructor(x,y,speed)  {
+20         this.x = x;
+21         this.y = y;
+22  
+23         this.speed = speed;
+24         this.switchInterval = round(random(2,20));
+25  
+26        this.setToRandomSymbol = function()  {
+27          if ( frameCount % this.switchInterval == 0){
+28          this.value = String.fromCharCode((0x30A0)+  round(random(0,96)))
+29
+30                                }    
+31       } ;
+32  
+33        this.render = function()  {
+34            fill(0,255,70);
+35            text(this.value,this.x,this.y);
+36            this.rain() ;
+37            this.setToRandomSymbol();
+38         };
+39    
+40      this.rain = function()  {
+41              if(this.y &gt;= height){
+42                      this.y=0;
+43                    } 
+44            else {
+45                 this.y = this.y + this.speed;
+46                   }          
+47          }   
+48       }
+49    }</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="The-LOGIC-behind-the-CODE">
+<a class="anchor" href="#The-LOGIC-behind-the-CODE" aria-hidden="true"><span class="octicon octicon-link"></span></a>The LOGIC behind the CODE<a class="anchor-link" href="#The-LOGIC-behind-the-CODE"> </a>
+</h1>
+<p><code>var symbol ;</code>  is a global variable declared which can be acessed by any function or method.</p>
+<h4 id="SETUP(-)">
+<a class="anchor" href="#SETUP(-)" aria-hidden="true"><span class="octicon octicon-link"></span></a>SETUP( )<a class="anchor-link" href="#SETUP(-)"> </a>
+</h4>
+<p><code>3 function setup() {</code></p>
+<p><code>4  createCanvas(window.innerWidth, window.innerHeight);</code></p>
+<p><code>5  background(0);</code></p>
+<p><code>6  symbol = new Symbole(width/2,0,random(5,10));</code></p>
+<p><code>7  symbol.setToRandomSymbol();</code></p>
+<p><code>8 }</code></p>
+<p>Lines 3-8 is where the one time <code>setup()</code> function is defined. <code>createCanvas()</code> as the name says does so. We also need to take care that the animation encompasses entire of the device. To make the extents device agnoistic P5.js has inbuilt keywords <code>window.innerWidth</code> and <code>window.innerHeight</code>. Line 5 assigns a black colour to the enotre background.</p>
+<p><code>symbol</code> on Line 6 is an instance of the class <code>Symbole</code> which is created and the relevant paramenters <code>x</code>, <code>y</code> and a random value for <code>speed</code> are passed.</p>
+<p>Line 7 calls the <code>setToRandomSymbol()</code> method for the object <code>symbol</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="DRAW-(-)">
+<a class="anchor" href="#DRAW-(-)" aria-hidden="true"><span class="octicon octicon-link"></span></a>DRAW ( )<a class="anchor-link" href="#DRAW-(-)"> </a>
+</h4>
+<p><code>10  function draw() {</code></p>
+<p><code>11    background(0)  ;</code></p>
+<p><code>12    fill(255);</code></p>
+<p><code>13    textSize(46);</code></p>
+<p><code>14   text("All the fun is happening here.", 200, 100);</code></p>
+<p><code>15   symbol.render() ;</code></p>
+<p><code>16   }</code></p>
+<p>Line 10 intitiaates the core <code>draw()</code> function which runs in a loop at 60 fps and is responsible for displaying the animation on the screen.</p>
+<p>All line are self explanatory. Line 15 is where the magic happens when the <code>symbol</code> object invokes <code>render()</code> method.</p>
+<p>It is in the render method that all the action is defined.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="OBJECT-ORIENTED-CLASS-defintion">
+<a class="anchor" href="#OBJECT-ORIENTED-CLASS-defintion" aria-hidden="true"><span class="octicon octicon-link"></span></a>OBJECT ORIENTED CLASS defintion<a class="anchor-link" href="#OBJECT-ORIENTED-CLASS-defintion"> </a>
+</h4>
+<p><code>class  Symbole {</code></p>
+<p><code>19        constructor(x,y,speed)  {</code></p>
+<p><code>20         this.x = x;</code></p>
+<p><code>21         this.y = y;</code></p>
+<p><code>22</code></p>
+<p><code>23         this.speed = speed;</code></p>
+<p><code>24         this.switchInterval = round(random(2,20));</code></p>
+<p><code>25</code></p>
+<p><code>26        this.setToRandomSymbol = function()  {</code></p>
+<p><code>27          if ( frameCount % this.switchInterval == 0){</code></p>
+<p><code>28          this.value = String.fromCharCode((0x30A0)+  round(random(0,96)))</code></p>
+<p><code>29</code></p>
+<p><code>30                                }</code></p>
+<p><code>31       } ;</code></p>
+<p>the class <code>Symbole</code> needs to be defined with the first letter in upper case. It consists of the following attributes :</p>
+<ul>
+<li>constructor - where the common variable, local and global are defined</li>
+<li>function <code>setToRandomSymbol( )</code> function which assigns the <code>value</code> to the KATAKANI font randomly. In order to introduce more randomness, a Bollean condition is introduced at Line 27 where <code>frameCount</code> - an in built variable = 60 is divided by random numbers between 2 and 20 <code>swithInterval</code> and only if the remainder is zero then the font is displayed on the canvas.</li>
+</ul>
+<p><code>0x30A0</code> is the first of the 96 KATAKANI letters/symbols. UTF-8 stands for Unicode Transformation Format. It is a family of standards for encoding the Unicode character set into its equivalent binary value. UTF was developed so that users have a standardized means of encoding the characters with the minimal amount of space.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="RENDER-Method">
+<a class="anchor" href="#RENDER-Method" aria-hidden="true"><span class="octicon octicon-link"></span></a>RENDER Method<a class="anchor-link" href="#RENDER-Method"> </a>
+</h4>
+<p><code>33 this.render = function()  {</code></p>
+<p><code>34            fill(0,255,70);</code></p>
+<p><code>35            text(this.value,this.x,this.y);</code></p>
+<p><code>36            this.rain() ;</code></p>
+<p><code>37            this.setToRandomSymbol();</code></p>
+<p><code>38         };</code></p>
+<p><code>render( )</code> is the function which does all the work. <code>fill(0,255,75)</code> assigns GREEN colour to the symbols but also adds a slight tinge of BLUE thorugh 70.</p>
+<p>The inbuilt <code>text</code> in P5.js accpets three parameters : first- the sumbol stored in the key word <code>value</code>. Second <code>x</code> and third <code>y</code> are the x and y co-ordinates of the location where the symbol is to be placed on the canvas.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h4 id="lastly-the-RAIN-method">
+<a class="anchor" href="#lastly-the-RAIN-method" aria-hidden="true"><span class="octicon octicon-link"></span></a>lastly the RAIN method<a class="anchor-link" href="#lastly-the-RAIN-method"> </a>
+</h4>
+<p><code>40  this.rain = function()  {</code></p>
+<p><code>41              if(this.y &gt;= height){</code></p>
+<p><code>42                      this.y=0;</code></p>
+<p><code>43                    }</code></p>
+<p><code>44            else {</code></p>
+<p><code>45                 this.y = this.y + this.speed;</code></p>
+<p><code>46                   }</code></p>
+<p><code>47          }</code></p>
+<p>Finally the <code>rain( )</code> method ensures that y cordinate of the symbol keeps chanign from the very top to the bottom of the canvas. When the symbol reaches the bottom, the y coordinate is re set to zero on LINE 42. If the symbol has not reached the bottom, its y co ordinate is incremented with the randomized speed variable.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="AnandKhandekar/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/jupyter/generative%20art/javascript/p5.js/matrix/2021/06/22/GenerativeArtinp5jsPart1.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Sharing and Showcasing possibilities in Computer Vision, Machine Learning and DL.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/AnandKhandekar" title="AnandKhandekar"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/anandkhandekar" title="anandkhandekar"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
